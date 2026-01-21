@@ -20,7 +20,7 @@
 html,body{
   margin:0;
   height:100%;
-  font-family:Inter,system-ui,-apple-system,Arial,sans-serif;
+  font-family:Inter,system-ui,Arial,sans-serif;
 }
 
 body{
@@ -34,8 +34,8 @@ body{
 }
 
 .login-card{
-  width:100%;
   max-width:420px;
+  width:100%;
   padding:34px;
   border-radius:20px;
   background:var(--glass-bg);
@@ -45,28 +45,12 @@ body{
   color:#fff;
 }
 
-.login-card h1{
-  margin:0 0 6px 0;
-  font-size:26px;
-  font-weight:700;
-  text-align:center;
-}
-
-.login-card p{
-  margin:0 0 28px 0;
-  text-align:center;
-  opacity:.85;
-  font-size:14px;
-}
-
 .field{margin-bottom:16px}
-.field label{font-size:13px;opacity:.9}
 .field input{
   width:100%;
   padding:14px;
   border-radius:12px;
   border:none;
-  outline:none;
   font-size:15px;
 }
 
@@ -77,17 +61,11 @@ button{
   border-radius:14px;
   background:linear-gradient(135deg,var(--primary),var(--primary-dark));
   color:#fff;
-  font-size:15px;
   font-weight:700;
   cursor:pointer;
 }
 
-#msg{
-  margin-top:16px;
-  text-align:center;
-  font-size:14px;
-}
-
+#msg{margin-top:16px;text-align:center}
 #msg.error{color:#ffb4b4}
 #msg.success{color:#b8ffcc}
 </style>
@@ -96,24 +74,20 @@ button{
 <body>
 
 <div class="login-card">
-  <h1>Bem-vindo</h1>
-  <p>Acesso restrito ao painel</p>
+  <h2 style="text-align:center">Acesso Restrito</h2>
 
   <div class="field">
-    <label>E-mail</label>
-    <input id="email" type="email">
+    <input id="email" type="email" placeholder="E-mail">
   </div>
 
   <div class="field">
-    <label>Senha</label>
-    <input id="senha" type="password">
+    <input id="senha" type="password" placeholder="Senha">
   </div>
 
   <button onclick="login()">Entrar</button>
   <div id="msg"></div>
 </div>
 
-<!-- 🔐 FIREBASE AUTH — COM REDIRECIONAMENTO CORRETO -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword }
@@ -130,8 +104,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 window.login = async function () {
-  const email = document.getElementById("email").value.trim();
-  const senha = document.getElementById("senha").value.trim();
+  const email = emailInput.value.trim();
+  const senha = senhaInput.value.trim();
   const msg = document.getElementById("msg");
 
   msg.textContent = "⏳ Entrando...";
@@ -139,18 +113,21 @@ window.login = async function () {
 
   try {
     await signInWithEmailAndPassword(auth, email, senha);
+
     msg.textContent = "✅ Login realizado";
     msg.className = "success";
 
-    // ✅ REDIRECIONAMENTO ABSOLUTO E SEGURO
-    const destino = window.location.href.replace(/login\.html.*$/, "");
-    window.location.replace(destino);
+    // 🔴 REDIRECIONAMENTO EXPLÍCITO
+    window.location.href = "index.html";
 
-  } catch (e) {
-    msg.textContent = "❌ E-mail ou senha inválidos";
+  } catch {
+    msg.textContent = "❌ Credenciais inválidas";
     msg.className = "error";
   }
 };
+
+const emailInput = document.getElementById("email");
+const senhaInput = document.getElementById("senha");
 </script>
 
 </body>
