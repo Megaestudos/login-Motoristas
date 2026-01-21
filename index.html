@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Acesso Restrito — Painel</title>
 
-<!-- Fonte moderna -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
@@ -14,7 +13,6 @@
   --primary-dark:#0f5fb8;
   --glass-bg: rgba(255,255,255,0.18);
   --glass-border: rgba(255,255,255,0.35);
-  --text:#0f172a;
 }
 
 *{box-sizing:border-box}
@@ -25,17 +23,16 @@ html,body{
   font-family:Inter,system-ui,-apple-system,Arial,sans-serif;
 }
 
-/* ===== FUNDO COM IMAGEM ===== */
 body{
   background:
     linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.55)),
-    url("https://plus.unsplash.com/premium_photo-1664299030248-3c2852c3a8e1?q=80&w=870&auto=format&fit=crop") center/cover no-repeat;
+    url("https://plus.unsplash.com/premium_photo-1664299030248-3c2852c3a8e1?q=80&w=870&auto=format&fit=crop")
+    center/cover no-repeat;
   display:flex;
   align-items:center;
   justify-content:center;
 }
 
-/* ===== CARD GLASS ===== */
 .login-card{
   width:100%;
   max-width:420px;
@@ -62,36 +59,20 @@ body{
   font-size:14px;
 }
 
-/* ===== CAMPOS ===== */
-.field{
-  margin-bottom:16px;
-}
-
-.field label{
-  display:block;
-  font-size:13px;
-  margin-bottom:6px;
-  opacity:.9;
-}
-
+.field{margin-bottom:16px}
+.field label{font-size:13px;opacity:.9}
 .field input{
   width:100%;
-  padding:14px 14px;
+  padding:14px;
   border-radius:12px;
   border:none;
   outline:none;
   font-size:15px;
 }
 
-.field input:focus{
-  box-shadow:0 0 0 2px var(--primary);
-}
-
-/* ===== BOTÃO ===== */
 button{
   width:100%;
   padding:14px;
-  margin-top:10px;
   border:none;
   border-radius:14px;
   background:linear-gradient(135deg,var(--primary),var(--primary-dark));
@@ -99,15 +80,8 @@ button{
   font-size:15px;
   font-weight:700;
   cursor:pointer;
-  transition:.25s;
 }
 
-button:hover{
-  transform:translateY(-1px);
-  box-shadow:0 8px 25px rgba(30,144,255,.45);
-}
-
-/* ===== STATUS ===== */
 #msg{
   margin-top:16px;
   text-align:center;
@@ -116,14 +90,6 @@ button:hover{
 
 #msg.error{color:#ffb4b4}
 #msg.success{color:#b8ffcc}
-
-/* ===== FOOTER ===== */
-.footer{
-  margin-top:22px;
-  text-align:center;
-  font-size:12px;
-  opacity:.7;
-}
 </style>
 </head>
 
@@ -134,34 +100,24 @@ button:hover{
   <p>Acesso restrito ao painel</p>
 
   <div class="field">
-    <label for="email">E-mail</label>
-    <input id="email" type="email" placeholder="seu@email.com">
+    <label>E-mail</label>
+    <input id="email" type="email">
   </div>
 
   <div class="field">
-    <label for="senha">Senha</label>
-    <input id="senha" type="password" placeholder="••••••••">
+    <label>Senha</label>
+    <input id="senha" type="password">
   </div>
 
   <button onclick="login()">Entrar</button>
-
   <div id="msg"></div>
-
-  <div class="footer">
-    © Painel Interno
-  </div>
 </div>
 
-<!-- =========================
-     FIREBASE AUTH (CORRIGIDO)
-========================= -->
+<!-- 🔐 FIREBASE AUTH — SEM LOOP -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword }
+  from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA1QL_UioBdIEqlcTxujW3U6uh3cc0sv6U",
@@ -170,39 +126,31 @@ const firebaseConfig = {
   appId: "1:947344780647:web:e062a1f039a169104c53c2"
 };
 
-// Inicialização única
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// trava anti-loop
-let redirected = false;
+// 🔐 LOGIN CONTROLADO PELO BOTÃO
+window.login = async function () {
+  const email = document.getElementById("email").value.trim();
+  const senha = document.getElementById("senha").value.trim();
+  const msg = document.getElementById("msg");
 
-// LOGIN (não redireciona aqui)
-window.login = async function(){
-  const email = document.getElementById('email').value.trim();
-  const senha = document.getElementById('senha').value.trim();
-  const msg = document.getElementById('msg');
+  msg.textContent = "⏳ Entrando...";
+  msg.className = "";
 
-  msg.textContent = '⏳ Autenticando...';
-  msg.className = '';
-
-  try{
+  try {
     await signInWithEmailAndPassword(auth, email, senha);
-    msg.textContent = '✅ Login realizado';
-    msg.className = 'success';
-  }catch(e){
-    msg.textContent = '❌ E-mail ou senha inválidos';
-    msg.className = 'error';
+    msg.textContent = "✅ Login realizado";
+    msg.className = "success";
+
+    // 🔴 REDIRECIONA UMA ÚNICA VEZ
+    window.location.href = "index.html";
+
+  } catch {
+    msg.textContent = "❌ E-mail ou senha inválidos";
+    msg.className = "error";
   }
 };
-
-// REDIRECIONAMENTO SEGURO (1 VEZ)
-onAuthStateChanged(auth, user=>{
-  if(user && !redirected){
-    redirected = true;
-    window.location.replace("index.html");
-  }
-});
 </script>
 
 </body>
