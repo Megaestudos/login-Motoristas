@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Acesso Restrito — Painel</title>
 
-<link href="link da foto aqui" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
@@ -113,7 +113,7 @@ button{
   <div id="msg"></div>
 </div>
 
-<!-- 🔐 FIREBASE AUTH — SEM LOOP -->
+<!-- 🔐 FIREBASE AUTH — CORRIGIDO -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword }
@@ -129,7 +129,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// 🔐 LOGIN CONTROLADO PELO BOTÃO
 window.login = async function () {
   const email = document.getElementById("email").value.trim();
   const senha = document.getElementById("senha").value.trim();
@@ -143,10 +142,10 @@ window.login = async function () {
     msg.textContent = "✅ Login realizado";
     msg.className = "success";
 
-    // 🔴 REDIRECIONA UMA ÚNICA VEZ
-    window.location.href = "index.html";
+    // ✅ REDIRECIONA PARA A RAIZ (FUNCIONA SEMPRE)
+    window.location.replace("./");
 
-  } catch {
+  } catch (e) {
     msg.textContent = "❌ E-mail ou senha inválidos";
     msg.className = "error";
   }
