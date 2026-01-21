@@ -3,137 +3,168 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Painel — Contagem de Quadrinhos</title>
+<title>Acesso — Contagem de Quadrinhos</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* =====================
-   RESET / BASE
-===================== */
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;font-family:Inter,Arial,sans-serif}
+html,body{
+  margin:0;height:100%;
+  font-family:Inter,system-ui,Arial,sans-serif;
+}
 
-/* =====================
-   LOGIN
-===================== */
-#loginView{
-  position:fixed;
-  inset:0;
+body{
+  background:
+    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.65)),
+    url("https://images.unsplash.com/photo-1521791136064-7986c2920216")
+    center/cover no-repeat;
   display:flex;
   align-items:center;
   justify-content:center;
-  background:
-    linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),
-    url("https://images.unsplash.com/photo-1521791136064-7986c2920216")
-    center/cover no-repeat;
 }
 
-.login-card{
-  width:360px;
-  padding:30px;
-  border-radius:18px;
-  background:rgba(255,255,255,.15);
+.card{
+  width:420px;
+  padding:36px;
+  border-radius:22px;
+  background:rgba(255,255,255,.18);
   backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,.35);
+  box-shadow:0 30px 70px rgba(0,0,0,.4);
   color:#fff;
 }
 
-.login-card h2{text-align:center;margin-top:0}
+.card h1{
+  margin:0 0 6px 0;
+  text-align:center;
+  font-size:26px;
+}
 
-.login-card input,
-.login-card button{
+.card p{
+  text-align:center;
+  font-size:14px;
+  opacity:.85;
+  margin-bottom:28px;
+}
+
+.field{
+  margin-bottom:16px;
+}
+
+.field label{
+  display:block;
+  font-size:13px;
+  margin-bottom:6px;
+  opacity:.9;
+}
+
+.input-wrap{
+  position:relative;
+}
+
+.field input{
   width:100%;
-  padding:14px;
-  border-radius:12px;
+  padding:14px 44px 14px 14px;
+  border-radius:14px;
   border:none;
-  margin-top:10px;
+  outline:none;
   font-size:15px;
 }
 
-.login-card button{
-  margin-top:16px;
-  background:#1e90ff;
+.toggle-eye{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  font-size:18px;
+  opacity:.7;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:16px;
+  background:linear-gradient(135deg,#1e90ff,#0f5fb8);
   color:#fff;
+  font-size:15px;
   font-weight:700;
   cursor:pointer;
+  transition:.25s;
 }
 
-#loginMsg{text-align:center;margin-top:12px;font-size:14px}
-
-/* =====================
-   APP
-===================== */
-#appView{
-  display:none;
-  min-height:100%;
-  background:#e8f7ff;
+button:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 30px rgba(30,144,255,.45);
 }
 
-header{
-  padding:20px;
-  text-align:center;
-  background:#fff;
+.links{
+  display:flex;
+  justify-content:space-between;
+  margin-top:16px;
+  font-size:13px;
 }
 
-header h1{margin:0;color:#1e90ff}
-
-.logout{
-  position:absolute;
-  top:20px;
-  right:20px;
-  background:#ff5c5c;
-  color:#fff;
-  border:none;
-  padding:10px 14px;
-  border-radius:10px;
+.links a{
+  color:#cfe7ff;
   cursor:pointer;
+  text-decoration:none;
 }
+
+.links a:hover{text-decoration:underline}
+
+#msg{
+  margin-top:18px;
+  text-align:center;
+  font-size:14px;
+}
+
+#msg.error{color:#ffb4b4}
+#msg.success{color:#b8ffcc}
 </style>
 </head>
 
 <body>
 
-<!-- =====================
-     LOGIN VIEW
-===================== -->
-<div id="loginView">
-  <div class="login-card">
-    <h2>Acesso Restrito</h2>
-    <input id="email" type="email" placeholder="E-mail">
-    <input id="senha" type="password" placeholder="Senha">
-    <button id="btnLogin">Entrar</button>
-    <div id="loginMsg"></div>
+<div class="card">
+  <h1>Bem-vindo</h1>
+  <p>Acesso ao painel Contagem de Quadrinhos</p>
+
+  <div class="field">
+    <label>E-mail</label>
+    <input id="email" type="email" placeholder="seu@email.com">
   </div>
+
+  <div class="field">
+    <label>Senha</label>
+    <div class="input-wrap">
+      <input id="senha" type="password" placeholder="••••••••">
+      <span class="toggle-eye" id="eye">👁️</span>
+    </div>
+  </div>
+
+  <button id="btnLogin">Entrar</button>
+
+  <div class="links">
+    <a id="btnCriar">Criar conta</a>
+    <a id="btnRecuperar">Esqueci a senha</a>
+  </div>
+
+  <div id="msg"></div>
 </div>
 
-<!-- =====================
-     APP VIEW
-===================== -->
-<div id="appView">
-  <header>
-    <h1>Contagem de Quadrinhos</h1>
-    <button class="logout" id="btnLogout">Sair</button>
-  </header>
-
-  <main style="padding:20px">
-    <p>✅ Usuário autenticado com sucesso.</p>
-    <p>Aqui entra TODO o seu frontend atual.</p>
-  </main>
-</div>
-
-<!-- =====================
-     FIREBASE AUTH
-===================== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import {
   getAuth,
   signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
-/* 🔐 CONFIG */
+/* 🔐 FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyA1QL_UioBdIEqlcTxujW3U6uh3cc0sv6U",
   authDomain: "contagem-de-quadrinhos.firebaseapp.com",
@@ -144,46 +175,75 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-/* ELEMENTOS */
-const loginView = document.getElementById("loginView");
-const appView   = document.getElementById("appView");
-const msg       = document.getElementById("loginMsg");
+const email = document.getElementById("email");
+const senha = document.getElementById("senha");
+const msg   = document.getElementById("msg");
 
-/* =====================
-   LOGIN
-===================== */
+/* 👁️ MOSTRAR / OCULTAR SENHA */
+document.getElementById("eye").onclick = ()=>{
+  senha.type = senha.type === "password" ? "text" : "password";
+};
+
+/* 🔐 LOGIN */
 document.getElementById("btnLogin").onclick = async ()=>{
-  const email = document.getElementById("email").value.trim();
-  const senha = document.getElementById("senha").value.trim();
-
   msg.textContent = "⏳ Entrando...";
+  msg.className = "";
 
   try{
-    await signInWithEmailAndPassword(auth,email,senha);
+    await signInWithEmailAndPassword(auth,email.value.trim(),senha.value.trim());
+    msg.textContent = "✅ Login realizado";
+    msg.className = "success";
+
+    setTimeout(()=>{
+      window.location.href = "https://megaestudos.github.io/contagem-de-quadrinhos/";
+    },600);
+
   }catch{
-    msg.textContent = "❌ Login inválido";
+    msg.textContent = "❌ E-mail ou senha inválidos";
+    msg.className = "error";
   }
 };
 
-/* =====================
-   LOGOUT
-===================== */
-document.getElementById("btnLogout").onclick = async ()=>{
-  await signOut(auth);
+/* 🆕 CRIAR CONTA */
+document.getElementById("btnCriar").onclick = async ()=>{
+  if(!email.value || !senha.value){
+    msg.textContent = "Informe e-mail e senha";
+    msg.className="error";
+    return;
+  }
+
+  try{
+    await createUserWithEmailAndPassword(auth,email.value.trim(),senha.value.trim());
+    msg.textContent="✅ Conta criada. Entrando...";
+    msg.className="success";
+
+    setTimeout(()=>{
+      window.location.href = "https://megaestudos.github.io/contagem-de-quadrinhos/";
+    },600);
+
+  }catch{
+    msg.textContent="❌ Não foi possível criar a conta";
+    msg.className="error";
+  }
 };
 
-/* =====================
-   CONTROLE DE SESSÃO
-===================== */
-onAuthStateChanged(auth,user=>{
-  if(user){
-    loginView.style.display="none";
-    appView.style.display="block";
-  }else{
-    appView.style.display="none";
-    loginView.style.display="flex";
+/* 🔁 RECUPERAR SENHA */
+document.getElementById("btnRecuperar").onclick = async ()=>{
+  if(!email.value){
+    msg.textContent="Informe seu e-mail";
+    msg.className="error";
+    return;
   }
-});
+
+  try{
+    await sendPasswordResetEmail(auth,email.value.trim());
+    msg.textContent="📧 E-mail de recuperação enviado";
+    msg.className="success";
+  }catch{
+    msg.textContent="❌ Erro ao enviar e-mail";
+    msg.className="error";
+  }
+};
 </script>
 
 </body>
