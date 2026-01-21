@@ -3,94 +3,63 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Acesso Restrito — Painel</title>
+<title>Login — Painel</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-:root{
-  --primary:#1e90ff;
-  --primary-dark:#0f5fb8;
-  --glass-bg: rgba(255,255,255,0.18);
-  --glass-border: rgba(255,255,255,0.35);
-}
-
-*{box-sizing:border-box}
-
-html,body{
-  margin:0;
-  height:100%;
-  font-family:Inter,system-ui,Arial,sans-serif;
-}
-
 body{
-  background:
-    linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.55)),
-    url("https://plus.unsplash.com/premium_photo-1664299030248-3c2852c3a8e1?q=80&w=870&auto=format&fit=crop")
-    center/cover no-repeat;
+  margin:0;
+  height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
+  font-family:Inter,Arial,sans-serif;
+  background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
+    url("https://images.unsplash.com/photo-1521791136064-7986c2920216") center/cover no-repeat;
 }
-
-.login-card{
-  max-width:420px;
-  width:100%;
-  padding:34px;
-  border-radius:20px;
-  background:var(--glass-bg);
-  backdrop-filter: blur(18px);
-  border:1px solid var(--glass-border);
-  box-shadow:0 25px 60px rgba(0,0,0,.35);
+.card{
+  width:360px;
+  padding:30px;
+  border-radius:18px;
+  background:rgba(255,255,255,.15);
+  backdrop-filter:blur(18px);
   color:#fff;
 }
-
-.field{margin-bottom:16px}
-.field input{
+input,button{
   width:100%;
   padding:14px;
   border-radius:12px;
   border:none;
+  margin-top:10px;
   font-size:15px;
 }
-
 button{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:14px;
-  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+  margin-top:16px;
+  background:#1e90ff;
   color:#fff;
   font-weight:700;
   cursor:pointer;
 }
-
-#msg{margin-top:16px;text-align:center}
-#msg.error{color:#ffb4b4}
-#msg.success{color:#b8ffcc}
+#msg{margin-top:12px;text-align:center;font-size:14px}
 </style>
 </head>
 
 <body>
 
-<div class="login-card">
+<div class="card">
   <h2 style="text-align:center">Acesso Restrito</h2>
 
-  <div class="field">
-    <input id="email" type="email" placeholder="E-mail">
-  </div>
+  <input id="emailInput" type="email" placeholder="E-mail">
+  <input id="senhaInput" type="password" placeholder="Senha">
+  <button id="btnLogin">Entrar</button>
 
-  <div class="field">
-    <input id="senha" type="password" placeholder="Senha">
-  </div>
-
-  <button onclick="login()">Entrar</button>
   <div id="msg"></div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword }
+import { getAuth, signInWithEmailAndPassword } 
   from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
 const firebaseConfig = {
@@ -103,31 +72,25 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-window.login = async function () {
-  const email = emailInput.value.trim();
-  const senha = senhaInput.value.trim();
-  const msg = document.getElementById("msg");
+const btn = document.getElementById("btnLogin");
+const msg = document.getElementById("msg");
+
+btn.addEventListener("click", async () => {
+  const email = document.getElementById("emailInput").value.trim();
+  const senha = document.getElementById("senhaInput").value.trim();
 
   msg.textContent = "⏳ Entrando...";
-  msg.className = "";
 
   try {
     await signInWithEmailAndPassword(auth, email, senha);
 
-    msg.textContent = "✅ Login realizado";
-    msg.className = "success";
-
-    // 🔴 REDIRECIONAMENTO EXPLÍCITO
+    // 🔥 REDIRECIONAMENTO GARANTIDO
     window.location.href = "index.html";
 
-  } catch {
-    msg.textContent = "❌ Credenciais inválidas";
-    msg.className = "error";
+  } catch (err) {
+    msg.textContent = "❌ Login inválido";
   }
-};
-
-const emailInput = document.getElementById("email");
-const senhaInput = document.getElementById("senha");
+});
 </script>
 
 </body>
