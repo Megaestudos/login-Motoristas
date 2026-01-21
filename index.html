@@ -113,7 +113,7 @@ button{
   <div id="msg"></div>
 </div>
 
-<!-- 🔐 FIREBASE AUTH — CORRIGIDO -->
+<!-- 🔐 FIREBASE AUTH — COM REDIRECIONAMENTO CORRETO -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword }
@@ -142,8 +142,9 @@ window.login = async function () {
     msg.textContent = "✅ Login realizado";
     msg.className = "success";
 
-    // ✅ REDIRECIONA PARA A RAIZ (FUNCIONA SEMPRE)
-    window.location.replace("./");
+    // ✅ REDIRECIONAMENTO ABSOLUTO E SEGURO
+    const destino = window.location.href.replace(/login\.html.*$/, "");
+    window.location.replace(destino);
 
   } catch (e) {
     msg.textContent = "❌ E-mail ou senha inválidos";
