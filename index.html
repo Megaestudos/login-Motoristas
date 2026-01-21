@@ -3,22 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Login — Painel</title>
+<title>Painel — Contagem de Quadrinhos</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-body{
-  margin:0;
-  height:100vh;
+/* =====================
+   RESET / BASE
+===================== */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:Inter,Arial,sans-serif}
+
+/* =====================
+   LOGIN
+===================== */
+#loginView{
+  position:fixed;
+  inset:0;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-family:Inter,Arial,sans-serif;
-  background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
-    url("https://images.unsplash.com/photo-1521791136064-7986c2920216") center/cover no-repeat;
+  background:
+    linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),
+    url("https://images.unsplash.com/photo-1521791136064-7986c2920216")
+    center/cover no-repeat;
 }
-.card{
+
+.login-card{
   width:360px;
   padding:30px;
   border-radius:18px;
@@ -26,7 +37,11 @@ body{
   backdrop-filter:blur(18px);
   color:#fff;
 }
-input,button{
+
+.login-card h2{text-align:center;margin-top:0}
+
+.login-card input,
+.login-card button{
   width:100%;
   padding:14px;
   border-radius:12px;
@@ -34,34 +49,91 @@ input,button{
   margin-top:10px;
   font-size:15px;
 }
-button{
+
+.login-card button{
   margin-top:16px;
   background:#1e90ff;
   color:#fff;
   font-weight:700;
   cursor:pointer;
 }
-#msg{margin-top:12px;text-align:center;font-size:14px}
+
+#loginMsg{text-align:center;margin-top:12px;font-size:14px}
+
+/* =====================
+   APP
+===================== */
+#appView{
+  display:none;
+  min-height:100%;
+  background:#e8f7ff;
+}
+
+header{
+  padding:20px;
+  text-align:center;
+  background:#fff;
+}
+
+header h1{margin:0;color:#1e90ff}
+
+.logout{
+  position:absolute;
+  top:20px;
+  right:20px;
+  background:#ff5c5c;
+  color:#fff;
+  border:none;
+  padding:10px 14px;
+  border-radius:10px;
+  cursor:pointer;
+}
 </style>
 </head>
 
 <body>
 
-<div class="card">
-  <h2 style="text-align:center">Acesso Restrito</h2>
-
-  <input id="emailInput" type="email" placeholder="E-mail">
-  <input id="senhaInput" type="password" placeholder="Senha">
-  <button id="btnLogin">Entrar</button>
-
-  <div id="msg"></div>
+<!-- =====================
+     LOGIN VIEW
+===================== -->
+<div id="loginView">
+  <div class="login-card">
+    <h2>Acesso Restrito</h2>
+    <input id="email" type="email" placeholder="E-mail">
+    <input id="senha" type="password" placeholder="Senha">
+    <button id="btnLogin">Entrar</button>
+    <div id="loginMsg"></div>
+  </div>
 </div>
 
+<!-- =====================
+     APP VIEW
+===================== -->
+<div id="appView">
+  <header>
+    <h1>Contagem de Quadrinhos</h1>
+    <button class="logout" id="btnLogout">Sair</button>
+  </header>
+
+  <main style="padding:20px">
+    <p>✅ Usuário autenticado com sucesso.</p>
+    <p>Aqui entra TODO o seu frontend atual.</p>
+  </main>
+</div>
+
+<!-- =====================
+     FIREBASE AUTH
+===================== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } 
-  from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
+/* 🔐 CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyA1QL_UioBdIEqlcTxujW3U6uh3cc0sv6U",
   authDomain: "contagem-de-quadrinhos.firebaseapp.com",
@@ -72,48 +144,47 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-const btn = document.getElementById("btnLogin");
-const msg = document.getElementById("msg");
+/* ELEMENTOS */
+const loginView = document.getElementById("loginView");
+const appView   = document.getElementById("appView");
+const msg       = document.getElementById("loginMsg");
 
-btn.addEventListener("click", async () => {
-  const email = document.getElementById("emailInput").value.trim();
-  const senha = document.getElementById("senhaInput").value.trim();
+/* =====================
+   LOGIN
+===================== */
+document.getElementById("btnLogin").onclick = async ()=>{
+  const email = document.getElementById("email").value.trim();
+  const senha = document.getElementById("senha").value.trim();
 
   msg.textContent = "⏳ Entrando...";
 
-  try {
-    await signInWithEmailAndPassword(auth, email, senha);
-
-    // 🔥 REDIRECIONAMENTO GARANTIDO
-    window.location.href = "index.html";
-
-  } catch (err) {
+  try{
+    await signInWithEmailAndPassword(auth,email,senha);
+  }catch{
     msg.textContent = "❌ Login inválido";
   }
-});
-</script>
-
-  <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
-import { getAuth, onAuthStateChanged } 
-  from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyA1QL_UioBdIEqlcTxujW3U6uh3cc0sv6U",
-  authDomain: "contagem-de-quadrinhos.firebaseapp.com",
-  projectId: "contagem-de-quadrinhos",
-  appId: "1:947344780647:web:e062a1f039a169104c53c2"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+/* =====================
+   LOGOUT
+===================== */
+document.getElementById("btnLogout").onclick = async ()=>{
+  await signOut(auth);
+};
 
-onAuthStateChanged(auth, user => {
-  if (!user) {
-    window.location.replace("login.html");
+/* =====================
+   CONTROLE DE SESSÃO
+===================== */
+onAuthStateChanged(auth,user=>{
+  if(user){
+    loginView.style.display="none";
+    appView.style.display="block";
+  }else{
+    appView.style.display="none";
+    loginView.style.display="flex";
   }
 });
 </script>
-  
+
 </body>
 </html>
