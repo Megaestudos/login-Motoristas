@@ -8,40 +8,47 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-body{
+*{box-sizing:border-box}
+
+html,body{
   margin:0;
-  height:100vh;
+  height:100%;
+  font-family:Inter,system-ui,Arial,sans-serif;
+}
+
+/* ===== FUNDO ===== */
+body{
+  background:
+    linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.55)),
+    url("https://images.unsplash.com/photo-1521791136064-7986c2920216") center/cover no-repeat;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-family:Inter,Arial,sans-serif;
-  background:
-    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
-    url("https://images.unsplash.com/photo-1521791136064-7986c2920216") center/cover no-repeat;
 }
 
 /* ===== CARD ===== */
-.card{
-  width:400px;
-  padding:32px 34px 30px;
+.login-card{
+  width:420px;
+  padding:34px;
   border-radius:20px;
-  background:rgba(255,255,255,.18);
-  backdrop-filter:blur(20px);
-  color:#fff;
+  background:rgba(255,255,255,0.18);
+  backdrop-filter:blur(18px);
   box-shadow:0 25px 60px rgba(0,0,0,.35);
+  color:#fff;
 }
 
 /* ===== TÍTULO ===== */
-.card h2{
+.login-card h1{
   text-align:center;
-  margin:0 0 22px 0;
-  font-size:22px;
+  margin:0 0 24px 0;
+  font-size:26px;
   font-weight:700;
 }
 
 /* ===== CAMPOS ===== */
 .field{
-  margin-bottom:16px;
+  margin-bottom:18px;
+  position:relative;
 }
 
 .field label{
@@ -53,25 +60,20 @@ body{
 
 .field input{
   width:100%;
-  padding:14px 44px 14px 14px;
+  height:48px;
+  padding:0 44px 0 14px;
   border-radius:12px;
   border:none;
   font-size:15px;
   outline:none;
 }
 
-.field input:focus{
-  box-shadow:0 0 0 2px #1e90ff;
-}
-
-.field.password{
-  position:relative;
-}
-
+/* ===== OLHO ===== */
 .eye{
   position:absolute;
   right:14px;
-  top:38px;
+  top:50%;
+  transform:translateY(-50%);
   cursor:pointer;
   font-size:16px;
   opacity:.8;
@@ -80,13 +82,12 @@ body{
 /* ===== BOTÃO ===== */
 button{
   width:100%;
-  padding:14px;
-  margin-top:6px;
+  height:50px;
   border:none;
   border-radius:14px;
   background:linear-gradient(135deg,#1e90ff,#0f5fb8);
   color:#fff;
-  font-size:15px;
+  font-size:16px;
   font-weight:700;
   cursor:pointer;
   transition:.25s;
@@ -94,38 +95,26 @@ button{
 
 button:hover{
   transform:translateY(-1px);
-  box-shadow:0 10px 25px rgba(30,144,255,.45);
+  box-shadow:0 8px 25px rgba(30,144,255,.45);
 }
 
 /* ===== LINKS ===== */
-.nav-links{
-  margin-top:18px;
+.links{
   display:flex;
   justify-content:center;
-  gap:16px;
+  gap:18px;
+  margin-top:18px;
   font-size:13px;
 }
 
-.nav-links span{
+.links span{
   cursor:pointer;
   opacity:.85;
-  text-decoration:none;
-  position:relative;
 }
 
-.nav-links span::after{
-  content:"";
-  position:absolute;
-  left:0;
-  bottom:-3px;
-  width:0;
-  height:2px;
-  background:#fff;
-  transition:.25s;
-}
-
-.nav-links span:hover::after{
-  width:100%;
+.links span:hover{
+  text-decoration:underline;
+  opacity:1;
 }
 
 /* ===== STATUS ===== */
@@ -133,87 +122,49 @@ button:hover{
   margin-top:16px;
   text-align:center;
   font-size:14px;
-  min-height:18px;
 }
-
-/* ===== HIDDEN ===== */
-.hidden{display:none}
+#msg.error{color:#ffb4b4}
+#msg.success{color:#b8ffcc}
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="login-card">
+  <h1>Entrar</h1>
 
-  <h2 id="title">Entrar</h2>
-
-  <!-- LOGIN -->
-  <div id="loginBox">
-    <div class="field">
-      <label>E-mail</label>
-      <input id="loginEmail" type="email" placeholder="seu@email.com">
-    </div>
-
-    <div class="field password">
-      <label>Senha</label>
-      <input id="loginSenha" type="password" placeholder="••••••••">
-      <span class="eye" onclick="toggleSenha('loginSenha')">👁</span>
-    </div>
-
-    <button onclick="login()">Entrar</button>
+  <div class="field">
+    <label>E-mail</label>
+    <input id="email" type="email" placeholder="seu@email.com">
   </div>
 
-  <!-- CRIAR CONTA -->
-  <div id="registerBox" class="hidden">
-    <div class="field">
-      <label>E-mail</label>
-      <input id="regEmail" type="email" placeholder="seu@email.com">
-    </div>
-
-    <div class="field password">
-      <label>Senha</label>
-      <input id="regSenha" type="password" placeholder="Crie uma senha">
-      <span class="eye" onclick="toggleSenha('regSenha')">👁</span>
-    </div>
-
-    <button onclick="criarConta()">Criar conta</button>
+  <div class="field">
+    <label>Senha</label>
+    <input id="senha" type="password" placeholder="••••••••">
+    <span class="eye" onclick="toggleSenha()">👁️</span>
   </div>
 
-  <!-- RECUPERAR -->
-  <div id="resetBox" class="hidden">
-    <div class="field">
-      <label>E-mail</label>
-      <input id="resetEmail" type="email" placeholder="seu@email.com">
-    </div>
-
-    <button onclick="recuperar()">Enviar recuperação</button>
-  </div>
+  <button onclick="login()">Entrar</button>
 
   <div id="msg"></div>
 
-  <!-- LINKS -->
-  <div class="nav-links">
-    <span onclick="showLogin()">Login</span>
-    <span onclick="showRegister()">Criar conta</span>
-    <span onclick="showReset()">Esqueci a senha</span>
+  <div class="links">
+    <span onclick="setMode('login')">Login</span>
+    <span onclick="setMode('register')">Criar conta</span>
+    <span onclick="resetSenha()">Esqueci a senha</span>
   </div>
-
 </div>
 
+<!-- ===== FIREBASE AUTH ===== -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import {
   getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  sendEmailVerification,
-  sendPasswordResetEmail,
-  signOut,
-  setPersistence,
-  browserSessionPersistence
+  sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
-/* FIREBASE CONFIG */
 const firebaseConfig = {
   apiKey: "AIzaSyA1QL_UioBdIEqlcTxujW3U6uh3cc0sv6U",
   authDomain: "contagem-de-quadrinhos.firebaseapp.com",
@@ -224,92 +175,53 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-/* Sempre exigir escolha de conta */
-await setPersistence(auth, browserSessionPersistence);
-await signOut(auth);
+let mode = 'login';
 
-const APP_URL = "https://megaestudos.github.io/contagem-de-quadrinhos/";
-const VERIFY_RETURN = "https://megaestudos.github.io/login-motoristas/login.html";
-
-const msg = document.getElementById("msg");
-
-/* UI */
-window.showLogin = () => switchBox("login");
-window.showRegister = () => switchBox("register");
-window.showReset = () => switchBox("reset");
-
-function switchBox(type){
-  loginBox.classList.add("hidden");
-  registerBox.classList.add("hidden");
-  resetBox.classList.add("hidden");
-
-  title.innerText =
-    type === "login" ? "Entrar" :
-    type === "register" ? "Criar conta" : "Recuperar senha";
-
-  document.getElementById(type+"Box").classList.remove("hidden");
-  msg.innerText="";
-}
-
-window.toggleSenha = id => {
-  const i = document.getElementById(id);
-  i.type = i.type === "password" ? "text" : "password";
+window.setMode = m => {
+  mode = m;
+  document.getElementById('msg').textContent =
+    m === 'register'
+      ? '📝 Criar nova conta'
+      : '';
 };
 
-/* LOGIN */
 window.login = async () => {
-  try{
-    msg.innerText="⏳ Entrando...";
-    const cred = await signInWithEmailAndPassword(
-      auth,
-      loginEmail.value.trim(),
-      loginSenha.value.trim()
-    );
+  const email = emailInput.value.trim();
+  const senha = senhaInput.value.trim();
+  const msg = document.getElementById('msg');
 
-    if(!cred.user.emailVerified){
-      await signOut(auth);
-      msg.innerText="❌ Verifique seu e-mail antes de entrar.";
+  msg.textContent = '⏳ Processando...';
+  msg.className = '';
+
+  try{
+    if(mode === 'register'){
+      await createUserWithEmailAndPassword(auth, email, senha);
+      msg.textContent = '✅ Conta criada. Faça login.';
+      msg.className = 'success';
+      mode = 'login';
       return;
     }
 
-    window.location.href = APP_URL;
+    await signInWithEmailAndPassword(auth, email, senha);
+    window.location.href =
+      "https://megaestudos.github.io/contagem-de-quadrinhos/";
 
-  }catch{
-    msg.innerText="❌ Login inválido";
+  }catch(e){
+    msg.textContent = '❌ Erro ao autenticar';
+    msg.className = 'error';
   }
 };
 
-/* CRIAR CONTA */
-window.criarConta = async () => {
-  try{
-    msg.innerText="⏳ Criando conta...";
-    const cred = await createUserWithEmailAndPassword(
-      auth,
-      regEmail.value.trim(),
-      regSenha.value.trim()
-    );
+window.resetSenha = async () => {
+  const email = emailInput.value.trim();
+  if(!email) return alert("Digite o e-mail");
 
-    await sendEmailVerification(cred.user,{
-      url: VERIFY_RETURN,
-      handleCodeInApp:false
-    });
-
-    await signOut(auth);
-    msg.innerText="📩 Verifique seu e-mail para liberar o login.";
-
-  }catch{
-    msg.innerText="❌ Erro ao criar conta";
-  }
+  await sendPasswordResetEmail(auth, email);
+  alert("📩 E-mail de recuperação enviado");
 };
 
-/* RECUPERAR */
-window.recuperar = async () => {
-  try{
-    await sendPasswordResetEmail(auth, resetEmail.value.trim());
-    msg.innerText="📩 E-mail de recuperação enviado.";
-  }catch{
-    msg.innerText="❌ Erro ao enviar recuperação";
-  }
+window.toggleSenha = () => {
+  senha.type = senha.type === 'password' ? 'text' : 'password';
 };
 </script>
 
