@@ -8,7 +8,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-*{box-sizing:border-box}
 body{
   margin:0;
   height:100vh;
@@ -16,23 +15,20 @@ body{
   align-items:center;
   justify-content:center;
   font-family:Inter,Arial,sans-serif;
-  background:
-    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.65)),
+  background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
     url("https://images.unsplash.com/photo-1521791136064-7986c2920216") center/cover no-repeat;
 }
 .card{
   width:380px;
-  padding:30px;
+  padding:32px;
   border-radius:20px;
   background:rgba(255,255,255,.18);
   backdrop-filter:blur(18px);
+  box-shadow:0 25px 60px rgba(0,0,0,.4);
   color:#fff;
-  box-shadow:0 25px 60px rgba(0,0,0,.45);
 }
-h2{text-align:center;margin:0 0 6px}
-p{text-align:center;font-size:13px;opacity:.85;margin:0 0 20px}
-
-input{
+h2{text-align:center;margin-top:0}
+input,button{
   width:100%;
   padding:14px;
   border-radius:12px;
@@ -40,43 +36,29 @@ input{
   margin-top:10px;
   font-size:15px;
 }
-
-.pass-wrap{position:relative}
-.pass-wrap span{
+button{
+  background:#1e90ff;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+.link{
+  text-align:center;
+  margin-top:12px;
+  font-size:13px;
+  cursor:pointer;
+  opacity:.9;
+}
+.link:hover{text-decoration:underline}
+#msg{margin-top:14px;text-align:center;font-size:14px}
+.eye{
   position:absolute;
-  right:14px;
+  right:16px;
   top:50%;
   transform:translateY(-50%);
   cursor:pointer;
 }
-
-button{
-  width:100%;
-  padding:14px;
-  margin-top:16px;
-  border:none;
-  border-radius:14px;
-  background:#1e90ff;
-  color:#fff;
-  font-weight:700;
-  font-size:15px;
-  cursor:pointer;
-}
-
-.link{
-  margin-top:12px;
-  text-align:center;
-  font-size:13px;
-  cursor:pointer;
-  text-decoration:underline;
-}
-
-#msg{
-  margin-top:14px;
-  text-align:center;
-  font-size:14px;
-}
-
+.field{position:relative}
 .hidden{display:none}
 </style>
 </head>
@@ -87,39 +69,38 @@ button{
 
   <!-- LOGIN -->
   <div id="loginBox">
-    <h2>Bem-vindo</h2>
-    <p>Acesso restrito</p>
+    <h2>Entrar</h2>
 
     <input id="loginEmail" type="email" placeholder="E-mail">
-    <div class="pass-wrap">
+    <div class="field">
       <input id="loginSenha" type="password" placeholder="Senha">
-      <span onclick="toggleSenha('loginSenha')">👁️</span>
+      <span class="eye" onclick="toggleSenha('loginSenha')">👁️</span>
     </div>
 
     <button onclick="login()">Entrar</button>
 
-    <div class="link" onclick="showCadastro()">Criar conta</div>
-    <div class="link" onclick="recuperar()">Esqueci minha senha</div>
+    <div class="link" onclick="mostrarCadastro()">Criar conta</div>
+    <div class="link" onclick="recuperarSenha()">Esqueci a senha</div>
   </div>
 
   <!-- CADASTRO -->
   <div id="cadastroBox" class="hidden">
     <h2>Criar conta</h2>
-    <p>Confirme o e-mail para liberar acesso</p>
 
     <input id="cadEmail" type="email" placeholder="E-mail">
-    <div class="pass-wrap">
+    <div class="field">
       <input id="cadSenha" type="password" placeholder="Senha">
-      <span onclick="toggleSenha('cadSenha')">👁️</span>
+      <span class="eye" onclick="toggleSenha('cadSenha')">👁️</span>
     </div>
 
     <button onclick="criarConta()">Criar conta</button>
-    <div class="link" onclick="voltarLogin()">Voltar ao login</div>
+    <div class="link" onclick="mostrarLogin()">Voltar</div>
   </div>
 
   <div id="msg"></div>
 </div>
 
+<!-- FIREBASE -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
 import {
@@ -128,7 +109,7 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   sendPasswordResetEmail,
-  signOut
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
 const firebaseConfig = {
@@ -140,79 +121,80 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const msg = document.getElementById("msg");
 
-/* UI */
-window.showCadastro = () => {
-  loginBox.classList.add("hidden");
-  cadastroBox.classList.remove("hidden");
-  msg.textContent = "";
-};
-window.voltarLogin = () => {
-  cadastroBox.classList.add("hidden");
-  loginBox.classList.remove("hidden");
-  msg.textContent = "";
-};
+const msg = document.getElementById("msg");
+const APP_URL = "https://megaestudos.github.io/contagem-de-quadrinhos/";
+
 window.toggleSenha = id => {
   const i = document.getElementById(id);
   i.type = i.type === "password" ? "text" : "password";
 };
 
-/* LOGIN */
+window.mostrarCadastro = () => {
+  loginBox.classList.add("hidden");
+  cadastroBox.classList.remove("hidden");
+  msg.textContent = "";
+};
+
+window.mostrarLogin = () => {
+  cadastroBox.classList.add("hidden");
+  loginBox.classList.remove("hidden");
+  msg.textContent = "";
+};
+
 window.login = async () => {
   msg.textContent = "⏳ Entrando...";
   try{
-    const cred = await signInWithEmailAndPassword(
+    const userCred = await signInWithEmailAndPassword(
       auth,
-      loginEmail.value.trim(),
-      loginSenha.value.trim()
+      loginEmail.value,
+      loginSenha.value
     );
 
-    if(!cred.user.emailVerified){
-      msg.textContent = "⚠️ Confirme seu e-mail antes de entrar.";
-      await signOut(auth);
+    if(!userCred.user.emailVerified){
+      msg.textContent = "⚠️ Verifique seu e-mail antes de entrar.";
       return;
     }
 
-    window.location.href =
-      "https://megaestudos.github.io/contagem-de-quadrinhos/";
+    window.location.href = APP_URL;
 
   }catch{
-    msg.textContent = "❌ E-mail ou senha inválidos";
+    msg.textContent = "❌ Login inválido";
   }
 };
 
-/* CADASTRO */
 window.criarConta = async () => {
   msg.textContent = "⏳ Criando conta...";
   try{
     const cred = await createUserWithEmailAndPassword(
       auth,
-      cadEmail.value.trim(),
-      cadSenha.value.trim()
+      cadEmail.value,
+      cadSenha.value
     );
 
     await sendEmailVerification(cred.user);
-
-    await signOut(auth);
-
-    msg.textContent =
-      "📩 Verifique seu e-mail. Depois volte e faça login.";
+    msg.textContent = "📧 Verifique seu e-mail para liberar o acesso.";
 
   }catch{
     msg.textContent = "❌ Erro ao criar conta";
   }
 };
 
-/* RECUPERAÇÃO */
-window.recuperar = async () => {
+window.recuperarSenha = async () => {
   if(!loginEmail.value){
-    msg.textContent = "Digite seu e-mail.";
+    msg.textContent = "Digite seu e-mail primeiro.";
     return;
   }
-  await sendPasswordResetEmail(auth, loginEmail.value.trim());
-  msg.textContent = "📩 Link de recuperação enviado.";
+  await sendPasswordResetEmail(auth, loginEmail.value);
+  msg.textContent = "📧 E-mail de recuperação enviado.";
 };
+
+// evita loop se já estiver logado
+onAuthStateChanged(auth, user => {
+  if(user && user.emailVerified){
+    window.location.href = APP_URL;
+  }
+});
 </script>
 
 </body>
