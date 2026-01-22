@@ -172,7 +172,13 @@ window.criarConta = async () => {
       cadSenha.value
     );
 
-    await sendEmailVerification(cred.user);
+   const actionCodeSettings = {
+  url: "https://megaestudos.github.io/login-motoristas/login.html",
+  handleCodeInApp: false
+};
+
+await sendEmailVerification(cred.user, actionCodeSettings);
+
     msg.textContent = "📧 Verifique seu e-mail para liberar o acesso.";
 
   }catch{
