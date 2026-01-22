@@ -56,7 +56,6 @@ button{
   cursor:pointer;
   opacity:.9;
 }
-
 .link:hover{text-decoration:underline}
 
 #msg{margin-top:12px;text-align:center;font-size:14px}
@@ -67,7 +66,7 @@ button{
 
 <body>
 
-<!-- 🔐 LOGIN -->
+<!-- LOGIN -->
 <div class="card active" id="loginCard">
   <h2>Entrar</h2>
   <input id="loginEmail" type="email" placeholder="E-mail">
@@ -80,7 +79,7 @@ button{
   <div id="loginMsg"></div>
 </div>
 
-<!-- 🆕 CADASTRO -->
+<!-- CADASTRO -->
 <div class="card" id="registerCard">
   <h2>Criar conta</h2>
   <input id="regEmail" type="email" placeholder="E-mail">
@@ -98,7 +97,8 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   sendEmailVerification,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
 const firebaseConfig = {
@@ -116,7 +116,7 @@ window.showCard = id => {
   document.getElementById(id).classList.add('active');
 };
 
-// 🔐 LOGIN COM VERIFICAÇÃO
+// LOGIN
 window.login = async () => {
   const email = loginEmail.value.trim();
   const senha = loginSenha.value.trim();
@@ -128,6 +128,7 @@ window.login = async () => {
     if(!cred.user.emailVerified){
       loginMsg.textContent = "❌ Confirme seu e-mail para liberar o acesso";
       loginMsg.className = "error";
+      await signOut(auth);
       return;
     }
 
@@ -140,7 +141,7 @@ window.login = async () => {
   }
 };
 
-// 🆕 REGISTRO COM VERIFICAÇÃO
+// REGISTRO (CORRIGIDO)
 window.registrar = async () => {
   const email = regEmail.value.trim();
   const senha = regSenha.value.trim();
@@ -148,10 +149,14 @@ window.registrar = async () => {
 
   try{
     const cred = await createUserWithEmailAndPassword(auth,email,senha);
+
     await sendEmailVerification(cred.user);
 
+    // 🔴 PASSO CRÍTICO
+    await signOut(auth);
+
     regMsg.textContent =
-      "✅ Conta criada! Verifique seu e-mail para ativar o login.";
+      "✅ Conta criada! Verifique seu e-mail e depois volte para fazer login.";
     regMsg.className = "success";
 
   }catch{
@@ -160,7 +165,7 @@ window.registrar = async () => {
   }
 };
 
-// 🔁 RECUPERAÇÃO
+// RECUPERAÇÃO
 window.resetSenha = async () => {
   const email = loginEmail.value.trim();
   if(!email) return alert("Digite seu e-mail");
