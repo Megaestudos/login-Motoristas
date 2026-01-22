@@ -48,7 +48,6 @@ input{
   top:50%;
   transform:translateY(-50%);
   cursor:pointer;
-  opacity:.8;
 }
 
 button{
@@ -70,7 +69,6 @@ button{
   font-size:13px;
   cursor:pointer;
   text-decoration:underline;
-  opacity:.9;
 }
 
 #msg{
@@ -107,7 +105,7 @@ button{
   <!-- CADASTRO -->
   <div id="cadastroBox" class="hidden">
     <h2>Criar conta</h2>
-    <p>Confirmação por e-mail obrigatória</p>
+    <p>Confirme o e-mail para liberar acesso</p>
 
     <input id="cadEmail" type="email" placeholder="E-mail">
     <div class="pass-wrap">
@@ -133,7 +131,6 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
-/* 🔥 CONFIGURAÇÃO */
 const firebaseConfig = {
   apiKey: "AIzaSyA1QL_UioBdIEqlcTxujW3U6uh3cc0sv6U",
   authDomain: "contagem-de-quadrinhos.firebaseapp.com",
@@ -143,7 +140,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
 const msg = document.getElementById("msg");
 
 /* UI */
@@ -152,13 +148,11 @@ window.showCadastro = () => {
   cadastroBox.classList.remove("hidden");
   msg.textContent = "";
 };
-
 window.voltarLogin = () => {
   cadastroBox.classList.add("hidden");
   loginBox.classList.remove("hidden");
   msg.textContent = "";
 };
-
 window.toggleSenha = id => {
   const i = document.getElementById(id);
   i.type = i.type === "password" ? "text" : "password";
@@ -168,10 +162,11 @@ window.toggleSenha = id => {
 window.login = async () => {
   msg.textContent = "⏳ Entrando...";
   try{
-    const email = loginEmail.value.trim();
-    const senha = loginSenha.value.trim();
-
-    const cred = await signInWithEmailAndPassword(auth, email, senha);
+    const cred = await signInWithEmailAndPassword(
+      auth,
+      loginEmail.value.trim(),
+      loginSenha.value.trim()
+    );
 
     if(!cred.user.emailVerified){
       msg.textContent = "⚠️ Confirme seu e-mail antes de entrar.";
@@ -182,8 +177,8 @@ window.login = async () => {
     window.location.href =
       "https://megaestudos.github.io/contagem-de-quadrinhos/";
 
-  }catch(e){
-    msg.textContent = "❌ Login inválido";
+  }catch{
+    msg.textContent = "❌ E-mail ou senha inválidos";
   }
 };
 
@@ -191,34 +186,31 @@ window.login = async () => {
 window.criarConta = async () => {
   msg.textContent = "⏳ Criando conta...";
   try{
-    const email = cadEmail.value.trim();
-    const senha = cadSenha.value.trim();
+    const cred = await createUserWithEmailAndPassword(
+      auth,
+      cadEmail.value.trim(),
+      cadSenha.value.trim()
+    );
 
-    const cred = await createUserWithEmailAndPassword(auth, email, senha);
-
-    await sendEmailVerification(cred.user, {
-      url: "https://megaestudos.github.io/login.html",
-      handleCodeInApp: true
-    });
+    await sendEmailVerification(cred.user);
 
     await signOut(auth);
 
     msg.textContent =
-      "📩 Verifique seu e-mail. Após confirmar, volte e faça login.";
+      "📩 Verifique seu e-mail. Depois volte e faça login.";
 
-  }catch(e){
+  }catch{
     msg.textContent = "❌ Erro ao criar conta";
   }
 };
 
 /* RECUPERAÇÃO */
 window.recuperar = async () => {
-  const email = loginEmail.value.trim();
-  if(!email){
-    msg.textContent = "Digite seu e-mail para recuperar a senha.";
+  if(!loginEmail.value){
+    msg.textContent = "Digite seu e-mail.";
     return;
   }
-  await sendPasswordResetEmail(auth, email);
+  await sendPasswordResetEmail(auth, loginEmail.value.trim());
   msg.textContent = "📩 Link de recuperação enviado.";
 };
 </script>
