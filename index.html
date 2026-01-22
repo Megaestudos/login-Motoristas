@@ -59,13 +59,13 @@ button{
   font-size:14px;
 }
 .hidden{display:none}
+.field{position:relative}
 .eye{
   position:absolute;
   right:16px;
-  top:42px;
+  top:38px;
   cursor:pointer;
 }
-.field{position:relative}
 </style>
 </head>
 
@@ -119,10 +119,12 @@ import {
   createUserWithEmailAndPassword,
   sendEmailVerification,
   sendPasswordResetEmail,
-  signOut
+  signOut,
+  setPersistence,
+  browserSessionPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
-/* 🔐 FIREBASE CONFIG */
+/* ================= FIREBASE CONFIG ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyA1QL_UioBdIEqlcTxujW3U6uh3cc0sv6U",
   authDomain: "contagem-de-quadrinhos.firebaseapp.com",
@@ -133,12 +135,17 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+/* 🔒 FORÇA ESCOLHA DE CONTA (SEM LOGIN AUTOMÁTICO) */
+await setPersistence(auth, browserSessionPersistence);
+await signOut(auth);
+
+/* URLs */
 const APP_URL = "https://megaestudos.github.io/contagem-de-quadrinhos/";
 const VERIFY_RETURN = "https://megaestudos.github.io/login-motoristas/login.html";
 
 const msg = document.getElementById("msg");
 
-/* ===== UI ===== */
+/* ================= UI ================= */
 window.showLogin = () => switchBox("login");
 window.showRegister = () => switchBox("register");
 window.showReset = () => switchBox("reset");
@@ -159,13 +166,15 @@ window.toggleSenha = id => {
   i.type = i.type === "password" ? "text" : "password";
 };
 
-/* ===== LOGIN ===== */
+/* ================= LOGIN ================= */
 window.login = async () => {
   try{
-    const email = loginEmail.value.trim();
-    const senha = loginSenha.value.trim();
     msg.innerText="⏳ Entrando...";
-    const cred = await signInWithEmailAndPassword(auth,email,senha);
+    const cred = await signInWithEmailAndPassword(
+      auth,
+      loginEmail.value.trim(),
+      loginSenha.value.trim()
+    );
 
     if(!cred.user.emailVerified){
       await signOut(auth);
@@ -180,14 +189,15 @@ window.login = async () => {
   }
 };
 
-/* ===== CRIAR CONTA ===== */
+/* ================= CRIAR CONTA ================= */
 window.criarConta = async () => {
   try{
-    const email = regEmail.value.trim();
-    const senha = regSenha.value.trim();
     msg.innerText="⏳ Criando conta...";
-
-    const cred = await createUserWithEmailAndPassword(auth,email,senha);
+    const cred = await createUserWithEmailAndPassword(
+      auth,
+      regEmail.value.trim(),
+      regSenha.value.trim()
+    );
 
     await sendEmailVerification(cred.user,{
       url: VERIFY_RETURN,
@@ -195,7 +205,6 @@ window.criarConta = async () => {
     });
 
     await signOut(auth);
-
     msg.innerText="📩 Verifique seu e-mail para liberar o login.";
 
   }catch{
@@ -203,7 +212,7 @@ window.criarConta = async () => {
   }
 };
 
-/* ===== RECUPERAR ===== */
+/* ================= RECUPERAR ================= */
 window.recuperar = async () => {
   try{
     await sendPasswordResetEmail(auth, resetEmail.value.trim());
