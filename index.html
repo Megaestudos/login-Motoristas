@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
+*{box-sizing:border-box}
 body{
   margin:0;
   height:100vh;
@@ -15,25 +16,23 @@ body{
   align-items:center;
   justify-content:center;
   font-family:Inter,Arial,sans-serif;
-  background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.55)),
+  background:
+    linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.65)),
     url("https://images.unsplash.com/photo-1521791136064-7986c2920216") center/cover no-repeat;
 }
-
 .card{
-  width:360px;
+  width:380px;
   padding:30px;
-  border-radius:18px;
+  border-radius:20px;
   background:rgba(255,255,255,.18);
   backdrop-filter:blur(18px);
   color:#fff;
-  display:none;
+  box-shadow:0 25px 60px rgba(0,0,0,.45);
 }
+h2{text-align:center;margin:0 0 6px}
+p{text-align:center;font-size:13px;opacity:.85;margin:0 0 20px}
 
-.card.active{ display:block; }
-
-h2{text-align:center;margin-top:0}
-
-input,button{
+input{
   width:100%;
   padding:14px;
   border-radius:12px;
@@ -42,52 +41,85 @@ input,button{
   font-size:15px;
 }
 
+.pass-wrap{position:relative}
+.pass-wrap span{
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  cursor:pointer;
+  opacity:.8;
+}
+
 button{
+  width:100%;
+  padding:14px;
+  margin-top:16px;
+  border:none;
+  border-radius:14px;
   background:#1e90ff;
   color:#fff;
   font-weight:700;
+  font-size:15px;
   cursor:pointer;
 }
 
 .link{
-  margin-top:14px;
+  margin-top:12px;
   text-align:center;
   font-size:13px;
   cursor:pointer;
+  text-decoration:underline;
   opacity:.9;
 }
-.link:hover{text-decoration:underline}
 
-#msg{margin-top:12px;text-align:center;font-size:14px}
-.error{color:#ffb4b4}
-.success{color:#b8ffcc}
+#msg{
+  margin-top:14px;
+  text-align:center;
+  font-size:14px;
+}
+
+.hidden{display:none}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div class="card active" id="loginCard">
-  <h2>Entrar</h2>
-  <input id="loginEmail" type="email" placeholder="E-mail">
-  <input id="loginSenha" type="password" placeholder="Senha">
-  <button onclick="login()">Entrar</button>
+<div class="card">
 
-  <div class="link" onclick="showCard('registerCard')">Criar conta</div>
-  <div class="link" onclick="resetSenha()">Esqueci a senha</div>
+  <!-- LOGIN -->
+  <div id="loginBox">
+    <h2>Bem-vindo</h2>
+    <p>Acesso restrito</p>
 
-  <div id="loginMsg"></div>
-</div>
+    <input id="loginEmail" type="email" placeholder="E-mail">
+    <div class="pass-wrap">
+      <input id="loginSenha" type="password" placeholder="Senha">
+      <span onclick="toggleSenha('loginSenha')">👁️</span>
+    </div>
 
-<!-- CADASTRO -->
-<div class="card" id="registerCard">
-  <h2>Criar conta</h2>
-  <input id="regEmail" type="email" placeholder="E-mail">
-  <input id="regSenha" type="password" placeholder="Senha">
-  <button onclick="registrar()">Criar conta</button>
+    <button onclick="login()">Entrar</button>
 
-  <div class="link" onclick="showCard('loginCard')">Voltar ao login</div>
-  <div id="regMsg"></div>
+    <div class="link" onclick="showCadastro()">Criar conta</div>
+    <div class="link" onclick="recuperar()">Esqueci minha senha</div>
+  </div>
+
+  <!-- CADASTRO -->
+  <div id="cadastroBox" class="hidden">
+    <h2>Criar conta</h2>
+    <p>Confirmação por e-mail obrigatória</p>
+
+    <input id="cadEmail" type="email" placeholder="E-mail">
+    <div class="pass-wrap">
+      <input id="cadSenha" type="password" placeholder="Senha">
+      <span onclick="toggleSenha('cadSenha')">👁️</span>
+    </div>
+
+    <button onclick="criarConta()">Criar conta</button>
+    <div class="link" onclick="voltarLogin()">Voltar ao login</div>
+  </div>
+
+  <div id="msg"></div>
 </div>
 
 <script type="module">
@@ -101,6 +133,7 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
 
+/* 🔥 CONFIGURAÇÃO */
 const firebaseConfig = {
   apiKey: "AIzaSyA1QL_UioBdIEqlcTxujW3U6uh3cc0sv6U",
   authDomain: "contagem-de-quadrinhos.firebaseapp.com",
@@ -111,23 +144,37 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-window.showCard = id => {
-  document.querySelectorAll('.card').forEach(c=>c.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+const msg = document.getElementById("msg");
+
+/* UI */
+window.showCadastro = () => {
+  loginBox.classList.add("hidden");
+  cadastroBox.classList.remove("hidden");
+  msg.textContent = "";
 };
 
-// LOGIN
-window.login = async () => {
-  const email = loginEmail.value.trim();
-  const senha = loginSenha.value.trim();
-  loginMsg.textContent = "⏳ Entrando...";
+window.voltarLogin = () => {
+  cadastroBox.classList.add("hidden");
+  loginBox.classList.remove("hidden");
+  msg.textContent = "";
+};
 
+window.toggleSenha = id => {
+  const i = document.getElementById(id);
+  i.type = i.type === "password" ? "text" : "password";
+};
+
+/* LOGIN */
+window.login = async () => {
+  msg.textContent = "⏳ Entrando...";
   try{
-    const cred = await signInWithEmailAndPassword(auth,email,senha);
+    const email = loginEmail.value.trim();
+    const senha = loginSenha.value.trim();
+
+    const cred = await signInWithEmailAndPassword(auth, email, senha);
 
     if(!cred.user.emailVerified){
-      loginMsg.textContent = "❌ Confirme seu e-mail para liberar o acesso";
-      loginMsg.className = "error";
+      msg.textContent = "⚠️ Confirme seu e-mail antes de entrar.";
       await signOut(auth);
       return;
     }
@@ -135,44 +182,44 @@ window.login = async () => {
     window.location.href =
       "https://megaestudos.github.io/contagem-de-quadrinhos/";
 
-  }catch{
-    loginMsg.textContent = "❌ E-mail ou senha inválidos";
-    loginMsg.className = "error";
+  }catch(e){
+    msg.textContent = "❌ Login inválido";
   }
 };
 
-// REGISTRO (CORRIGIDO)
-window.registrar = async () => {
-  const email = regEmail.value.trim();
-  const senha = regSenha.value.trim();
-  regMsg.textContent = "⏳ Criando conta...";
-
+/* CADASTRO */
+window.criarConta = async () => {
+  msg.textContent = "⏳ Criando conta...";
   try{
-    const cred = await createUserWithEmailAndPassword(auth,email,senha);
+    const email = cadEmail.value.trim();
+    const senha = cadSenha.value.trim();
 
-    await sendEmailVerification(cred.user);
+    const cred = await createUserWithEmailAndPassword(auth, email, senha);
 
-    // 🔴 PASSO CRÍTICO
+    await sendEmailVerification(cred.user, {
+      url: "https://megaestudos.github.io/login.html",
+      handleCodeInApp: true
+    });
+
     await signOut(auth);
 
-    regMsg.textContent =
-      "✅ Conta criada! Verifique seu e-mail e depois volte para fazer login.";
-    regMsg.className = "success";
+    msg.textContent =
+      "📩 Verifique seu e-mail. Após confirmar, volte e faça login.";
 
-  }catch{
-    regMsg.textContent = "❌ Erro ao criar conta";
-    regMsg.className = "error";
+  }catch(e){
+    msg.textContent = "❌ Erro ao criar conta";
   }
 };
 
-// RECUPERAÇÃO
-window.resetSenha = async () => {
+/* RECUPERAÇÃO */
+window.recuperar = async () => {
   const email = loginEmail.value.trim();
-  if(!email) return alert("Digite seu e-mail");
-
-  await sendPasswordResetEmail(auth,email);
-  loginMsg.textContent = "📧 E-mail de recuperação enviado";
-  loginMsg.className = "success";
+  if(!email){
+    msg.textContent = "Digite seu e-mail para recuperar a senha.";
+    return;
+  }
+  await sendPasswordResetEmail(auth, email);
+  msg.textContent = "📩 Link de recuperação enviado.";
 };
 </script>
 
